@@ -1,0 +1,77 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Responsable {
+  idResponsable   Int         @id @default(autoincrement())
+  nom             String
+  prenom          String
+  poste           String
+  nomUtilisateur  String      @unique
+  motDePasse      String
+  createAt        DateTime    @default(now())
+  updateAt        DateTime    @updatedAt
+  stagiaires      Stagiaire[] @relation("responsable_stagiaire")
+  codeDepartement String
+  departement     Departement @relation("departement_responsable", fields: [codeDepartement], references: [codeDepartement], onDelete: NoAction, onUpdate: Cascade)
+  Projets         Projet[]    @relation("responsable_projet")
+}
+
+model Departement {
+  codeDepartement String        @id
+  nom             String
+  createAt        DateTime      @default(now())
+  updateAt        DateTime      @updatedAt
+  stagiaires      Stagiaire[]   @relation("departement_stagiaire")
+  responsables    Responsable[] @relation("departement_responsable")
+}
+
+model Stagiaire {
+  idStagiaire        Int         @id @default(autoincrement())
+  matriculeStagiaire String      @unique
+  nom                String
+  prenom             String
+  linkedin           String      
+  statut             String      @default("ACTIF")
+  debutStage         DateTime
+  finStage           DateTime
+  createAt           DateTime    @default(now())
+  updateAt           DateTime    @updatedAt
+  idResponsable      Int
+  responsable        Responsable @relation("responsable_stagiaire", fields: [idResponsable], references: [idResponsable], onDelete: NoAction, onUpdate: Cascade)
+  codeDepartement    String
+  departement        Departement @relation("departement_stagiaire", fields: [codeDepartement], references: [codeDepartement], onDelete: NoAction, onUpdate: Cascade)
+  taches             Tache[]     @relation("taches_stagiaire")
+}
+
+model Projet {
+  idProjet      Int         @id @default(autoincrement())
+  nom           String
+  description   String
+  dureeProjet   Int
+  createAt      DateTime    @default(now())
+  updateAt      DateTime    @updatedAt
+  idResponsable Int
+  taches        Tache[]     @relation("taches_projet")
+  responsable   Responsable @relation("responsable_projet", fields: [idResponsable], references: [idResponsable], onDelete: NoAction, onUpdate: Cascade)
+}
+
+model Tache {
+  idTache     Int       @id @default(autoincrement())
+  description String
+  dureeTache  Int
+  createAt    DateTime  @default(now())
+  updateAt    DateTime  @updatedAt
+  idStagiaire Int
+  idProjet    Int
+  stagiaire   Stagiaire @relation("taches_stagiaire", fields: [idStagiaire], references: [idStagiaire], onDelete: NoAction, onUpdate: Cascade)
+  projet      Projet    @relation("taches_projet", fields: [idProjet], references: [idProjet], onDelete: NoAction, onUpdate: Cascade)
+}
