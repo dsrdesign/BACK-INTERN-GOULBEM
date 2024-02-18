@@ -26,8 +26,8 @@ export class StagiaireController {
      @Get("detail")
      getOneStagiaire(@Req() request: Request){
           this.logger.log("Detail d'un stagiaire !")
-          const MATRICULE_STAGIAIRE = request.query["matriculeStagiaire"].toString()
-          return this.stagiaireService.findOneStagiaire(MATRICULE_STAGIAIRE)
+          const ID_STAGIAIRE = parseInt(request.query["idStagiaire"].toString())
+          return this.stagiaireService.findOneStagiaire(ID_STAGIAIRE)
      }
 
      @UseGuards(AuthGuard("jwt"))

@@ -9,29 +9,37 @@ export class StagiaireService {
 
      async createStagiaire(createStagiaireDto: CreateStagiaireDto) {
           const { matriculeStagiaire, nom, prenom, linkedin, debutStage, finStage, codeDepartement, idResponsable, statut } = createStagiaireDto;
+          const _debutStage = debutStage+"T00:00:00.000Z"
+          const _finStage = finStage+"T00:00:00.000Z"
           const STAGIAIRE = await this.prismaService.stagiaire.findUnique({
                where: { matriculeStagiaire}
-          }).catch(error => { throw new ForbiddenException("Oups une erreur c'est produite, veuillez réessayer plustard oooo!") })
+          }).catch(error => { throw new ForbiddenException("Oupsss une erreur c'est produite, veuillez réessayer plustard oooo!") })
           if (STAGIAIRE) throw new ConflictException("Ce matricule est deja utilisé !")
           // const STAGIAIRE_LINKEDIN = await this.prismaService.stagiaire.findUnique({
           //      where: { idStagiaire}
           // }).catch(error => { throw new ForbiddenException("Oups une erreur c'est produite, veuillez réessayer plustard oooo!") })
           // if (STAGIAIRE_LINKEDIN) throw new ConflictException("Ce compte linkedin est deja utilisé !")
           await this.prismaService.stagiaire.create({
-               data: { matriculeStagiaire, nom, prenom, linkedin, debutStage, finStage, codeDepartement, idResponsable, statut }
-          }).catch(error => { throw new ForbiddenException("Oups une erreur c'est produite, veuillez réessayer plustard ooojjj!") })
+               data: { matriculeStagiaire, nom, prenom, linkedin, debutStage: _debutStage, finStage: _finStage, codeDepartement, idResponsable: parseInt(`${idResponsable}`), statut }
+          }).catch(error => { throw new ForbiddenException(error) })
 
           return { message: "Stagiaire creer avec succes" }
      }
 
-     async findOneStagiaire(matriculeStagiaire: string) {
+     async findOneStagiaire(idStagiaire: number) {
           const STAGIAIRE = await this.prismaService.stagiaire.findUnique({
-               where: { matriculeStagiaire },
-               include: {responsable: true, departement: true}
+               where: { idStagiaire },
+               include: {responsable: true, departement: true},
+          
           }).catch(error => { throw new ForbiddenException("Oups une erreur c'est produite, veuillez réessayer plustard !") })
           if (!STAGIAIRE) throw new NotFoundException("Aucune stagiaire trouvé !")
 
-          return { data: STAGIAIRE, message: "Le stagiaire a bien été récupéré !" }
+          const PROJETS = await this.prismaService.tache.findMany({
+               where: { idStagiaire }, select: { projet: true, },
+          }).then(taches => taches.map(tache => tache.projet))
+          .catch(error => {throw new ForbiddenException("Oups une erreur c'est produite, veuillez réessayer plustard !")});
+
+          return { data: {stagiaire: STAGIAIRE, projet: PROJETS}, message: "Le stagiaire a bien été récupéré !" }
      }
 
      async findAllStagiaire() {

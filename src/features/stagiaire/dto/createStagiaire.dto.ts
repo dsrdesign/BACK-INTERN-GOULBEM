@@ -12,9 +12,9 @@ export class CreateStagiaireDto{
      @IsNotEmpty()
      readonly statut : string
      @IsNotEmpty()
-     readonly debutStage : Date
+     readonly debutStage : string
      @IsNotEmpty()
-     readonly finStage : Date
+     readonly finStage : string
      @IsNotEmpty()
      readonly idResponsable : number
      @IsNotEmpty()

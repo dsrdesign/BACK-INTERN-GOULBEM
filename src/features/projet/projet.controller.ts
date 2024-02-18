@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Logger, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Logger, Param, ParseIntPipe, Post, Req, UseGuards } from '@nestjs/common';
 import { ProjetService } from './projet.service';
 import { Request } from 'express';
 import { CreateProjetDto } from './dto/createProjet.dto';
@@ -22,6 +22,7 @@ export class ProjetController {
           return this.projetService.createProjet(createProjetDto, ID_RESPONSABLE)
      }
 
+
      @UseGuards(AuthGuard("jwt"))
      @Get("all")
      getAllProjet() {
@@ -29,6 +30,14 @@ export class ProjetController {
           return this.projetService.findAllProjet()
      }
 
+     @UseGuards(AuthGuard("jwt"))
+     @Get(":idProjet")
+     getOneProjet(@Param("idProjet", ParseIntPipe) idProjet: number) {
+          console.log("Mon id : ", idProjet);
+          
+          this.logger.log("Recherche d'un projet !")
+          return this.projetService.findOneProjet(idProjet)
+     }
      @UseGuards(AuthGuard("jwt"))
      @Get("allByStagiaire")
      getAllProjetByStagiaire(@Req() request: Request) {
